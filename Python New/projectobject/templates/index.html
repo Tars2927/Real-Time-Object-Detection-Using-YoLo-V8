@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Object Detection Web App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6366F1;
+            --primary-light: #818CF8;
+            --primary-dark: #4F46E5;
+            --secondary: #0EA5E9;
+            --accent: #F43F5E;
+            --light: #F9FAFB;
+            --dark: #111827;
+            --gray: #6B7280;
+            --gray-light: #E5E7EB;
+            --gray-dark: #374151;
+            --success: #10B981;
+            --danger: #EF4444;
+            --background: #F3F4F6;
+            --card-bg: #FFFFFF;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--background);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            color: var(--primary-dark);
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+        
+        header p {
+            color: var(--gray);
+            font-size: 1.1rem;
+        }
+        
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid var(--gray-light);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(99, 102, 241, 0.1);
+        }
+        
+        .card-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+        }
+        
+        .card-title i {
+            margin-right: 0.75rem;
+            color: var(--primary);
+        }
+        
+        .upload-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .file-input-wrapper {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            border: 2px dashed var(--primary-light);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-color: rgba(129, 140, 248, 0.03);
+        }
+        
+        .file-input-wrapper:hover {
+            background-color: rgba(129, 140, 248, 0.08);
+            border-color: var(--primary);
+        }
+        
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        
+        .file-label {
+            text-align: center;
+            color: var(--gray);
+        }
+        
+        .file-label i {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .file-label p {
+            font-size: 1.1rem;
+        }
+        
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 0.75rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn i {
+            margin-right: 0.5rem;
+        }
+        
+        .btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+        
+        .btn-camera {
+            background-color: var(--secondary);
+            margin-top: 1rem;
+        }
+        
+        .btn-camera:hover {
+            background-color: #0284C7;
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+        }
+        
+        .or-divider {
+            display: flex;
+            align-items: center;
+            margin: 2rem 0;
+            color: var(--gray);
+        }
+        
+        .or-divider::before,
+        .or-divider::after {
+            content: "";
+            flex: 1;
+            border-bottom: 1px solid var(--gray-light);
+        }
+        
+        .or-divider-text {
+            padding: 0 1rem;
+            font-weight: 600;
+        }
+        
+        .result-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .result-image {
+            max-width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            margin-top: 1rem;
+        }
+        
+        .result-title {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+        
+        .video-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        #video_feed {
+            max-width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            margin-top: 1.5rem;
+            display: none;
+        }
+        
+        .footer {
+            text-align: center;
+            color: var(--gray);
+            margin-top: 3rem;
+            font-size: 0.9rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--gray-light);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            header h1 {
+                font-size: 2rem;
+            }
+            
+            .card {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Object Detection AI</h1>
+            <p>Upload an image or use your camera to detect objects in real-time</p>
+        </header>
+        
+        <div class="card">
+            <h2 class="card-title"><i class="fas fa-upload"></i>Upload Image</h2>
+            <form action="/" method="post" enctype="multipart/form-data" class="upload-area">
+                <div class="file-input-wrapper">
+                    <input type="file" name="file" id="file-input" required>
+                    <div class="file-label">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Drag & drop your image here or click to browse</p>
+                    </div>
+                </div>
+                <button type="submit" class="btn"><i class="fas fa-search"></i>Detect Objects</button>
+            </form>
+        </div>
+        
+        <div class="or-divider">
+            <span class="or-divider-text">OR</span>
+        </div>
+        
+        <div class="card">
+            <h2 class="card-title"><i class="fas fa-camera"></i>Use Camera</h2>
+            <div class="video-container">
+                <button onclick="startCamera()" class="btn btn-camera"><i class="fas fa-video"></i>Start Camera</button>
+                <img id="video_feed" src="" alt="Video feed">
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>© 2025 GROUP 2 AI. All rights reserved.</p>
+        </div>
+    </div>
+
+    <script>
+        // Show file name when selected
+        document.getElementById('file-input').addEventListener('change', function(e) {
+            const fileName = e.target.files[0]?.name;
+            if (fileName) {
+                const fileLabel = document.querySelector('.file-label p');
+                fileLabel.textContent = `Selected: ${fileName}`;
+            }
+        });
+        
+        // Start camera function
+        function startCamera() {
+            const videoFeed = document.getElementById("video_feed");
+            videoFeed.src = "{{ url_for('video_feed') }}";
+            videoFeed.style.display = "block";
+        }
+    </script>
+</body>
+</html>
